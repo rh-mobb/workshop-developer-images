@@ -32,12 +32,11 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
-      - name: Docker Build & Push Universal
+      - name: Docker Build & Push Image
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.event_name != 'pull_request' }}
           provenance: false
-          context: universal/ubi8
           tags: |
             quay.io/rh-mobb/workshop-developer-images:latest
             ${{ steps.meta.outputs.tags }}
