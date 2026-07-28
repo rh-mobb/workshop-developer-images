@@ -21,12 +21,14 @@ RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc && \
     make && \
     make install && \
     cd ${TEMP_DIR} && \
-    bash -c ". /home/user/.sdkman/bin/sdkman-init.sh \
+    export SDKMAN_DIR=/home/user/.sdkman && \
+    curl -s "https://get.sdkman.io" | bash && \
+    bash -c '. /home/user/.sdkman/bin/sdkman-init.sh \
         && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/user/.sdkman/etc/config \
-	    && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/user/.sdkman/etc/config \
+        && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/user/.sdkman/etc/config \
         && sdk install quarkus \
         && sdk flush archives \
-        && sdk flush temp" && \
+        && sdk flush temp' && \
     rm -rf ${TEMP_DIR}
 
 USER 10001
