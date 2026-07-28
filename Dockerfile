@@ -2,6 +2,8 @@ FROM quay.io/devfile/universal-developer-image:ubi8-latest
 
 USER 0
 
+ENV SDKMAN_DIR=/home/user/.sdkman
+
 RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc && \
     dnf install -y https://packages.microsoft.com/config/rhel/8/packages-microsoft-prod.rpm && \
     dnf install -y azure-cli parallel yum-utils && \
@@ -20,19 +22,14 @@ RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc && \
     ./configure && \
     make && \
     make install && \
+    cd ${TEMP_DIR} && \
+    curl -s "https://get.sdkman.io" | bash && \
+    bash -c '. "$SDKMAN_DIR/bin/sdkman-init.sh" \
+        && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" "$SDKMAN_DIR/etc/config" \
+        && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" "$SDKMAN_DIR/etc/config" \
+        && sdk install quarkus \
+        && sdk flush archives \
+        && sdk flush temp' && \
     rm -rf ${TEMP_DIR}
 
-
 USER 10001
-
-ENV SDKMAN_DIR=/home/user/.sdkman
-
-WORKDIR /home/user
-
-RUN curl -s "https://get.sdkman.io" | bash && \
-    bash -lc 'source "$SDKMAN_DIR/bin/sdkman-init.sh" && \
-      sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" "$SDKMAN_DIR/etc/config" && \
-      sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" "$SDKMAN_DIR/etc/config" && \
-      sdk install quarkus && \
-      sdk flush archives && \
-      sdk flush temp'
